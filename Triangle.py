@@ -20,6 +20,8 @@ class Triangle:
 		else:
 			self.angles=Triangle.__fill_array(angles)
 
+		self.solve()
+
 	@staticmethod
 	def __fill_array(a,fill_len=3):
 		if a is None:
@@ -57,6 +59,9 @@ class Triangle:
 		raise Exception("No value defined")
 
 	def solve(self):
+		if self.__num_not_none(self.sides)+self.__num_not_none(self.angles)>3:
+			raise Exception("Over constrained")
+
 		#SSS - law of cosines
 		if Triangle.__num_not_none(self.sides)==3:
 			for i in range(0,2):
@@ -65,6 +70,30 @@ class Triangle:
 				self.angles[i]=math.acos(float(n)/float(m))
 
 			self.compute_missing_angle()
+
+		#SAS or SSA
+		if (Triangle.__num_not_none(self.sides)==2
+				and Triangle.__num_not_none(self.angles)>=1):
+
+			# Included angle (SAS)
+			if Triangle.__first_none(self.sides)==Triangle.__first_not_none(self.angles):
+				c=Triangle.__first_none(self.sides)
+				a=(c+1)%3
+				b=(c+2)%3
+
+				self.sides[c]=math.sqrt(self.sides[a]**2 + self.sides[b]**2
+					-2*self.sides[a]*self.sides[b]*math.cos(self.angles[c]))
+
+				self.angles[a]=math.acos((self.sides[b]**2 +  self.sides[c]**2 - self.sides[a]**2)
+					/(2*self.sides[b]*self.sides[c]))
+
+				self.compute_missing_angle()
+				pass
+
+			# Not the included angle (SSA)
+			else:
+				raise Exception("not impl")
+				pass
 
 		#ASA - law of sines
 		elif Triangle.__num_not_none(self.angles)>=2:
@@ -96,14 +125,9 @@ class Triangle:
 
 	def __repr__(self):
 		d=self.get_degrees()
-		return "Triangle[%s - d=[%d,%d,%d]]"%(self.sides,d[0],d[1],d[2])
+		return "Triangle[%s - d=[%s,%s,%s]]"%(self.sides,d[0],d[1],d[2])
 
 if __name__=="__main__":
-	t=Triangle([10,10,10])
-	t.solve()
-	print t
-
-#	t=Triangle([10],degrees=[90,45])
-	t=Triangle([None,10],degrees=[90,45])
-	t.solve()
-	print t
+	print Triangle([10,10,10])
+	print Triangle([None,10],degrees=[90,45])
+	print Triangle([10,None,10],degrees=[None,90])
