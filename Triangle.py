@@ -6,7 +6,7 @@ import math
 
 class Triangle:
 
-	def __init__(self, sides=None, angles=None, degrees=None):
+	def __init__(self, sides=None, radians=None, degrees=None):
 		self.sides=Triangle.__fill_array(sides)
 
 		if degrees is not None:
@@ -18,10 +18,38 @@ class Triangle:
 			]
 
 		else:
-			self.angles=Triangle.__fill_array(angles)
+			self.angles=Triangle.__fill_array(radians)
 
-		self.other=None
-		self.solve()
+		self.__other=None
+		self.__solve()
+
+	def get_degrees(self):
+		return [
+			self.get_degree(0),
+			self.get_degree(1),
+			self.get_degree(2)
+		]
+
+	def get_degree(self, i):
+		return math.degrees(self.angles[i]) if self.angles[i] is not None else None
+
+	def get_sides(self):
+		return self.sides
+
+	def get_side(self, i):
+		return self.sides[i]
+
+	def get_radian(self, i):
+		return self.angles[i]
+
+	def get_radians(self):
+		return self.angles
+
+	def get_other(self):
+		if self.__other is None:
+			return self
+
+		return self.__other
 
 	@staticmethod
 	def __fill_array(a,fill_len=3):
@@ -59,13 +87,7 @@ class Triangle:
 
 		raise Exception("No value defined")
 
-	def get_other(self):
-		if self.other is None:
-			return self
-
-		return self.other
-
-	def solve(self):
+	def __solve(self):
 		if self.__num_not_none(self.sides)+self.__num_not_none(self.angles)>3:
 			raise Exception("Over constrained")
 
@@ -76,7 +98,7 @@ class Triangle:
 				m=2*self.sides[(i+1)%3]*self.sides[(i+2)%3]
 				self.angles[i]=math.acos(float(n)/float(m))
 
-			self.compute_missing_angle()
+			self.__compute_missing_angle()
 
 		#SAS or SSA
 		if (Triangle.__num_not_none(self.sides)==2
@@ -94,7 +116,7 @@ class Triangle:
 				self.angles[a]=math.acos((self.sides[b]**2 +  self.sides[c]**2 - self.sides[a]**2)
 					/(2*self.sides[b]*self.sides[c]))
 
-				self.compute_missing_angle()
+				self.__compute_missing_angle()
 				pass
 
 			# Not the included angle (SSA)
@@ -114,18 +136,18 @@ class Triangle:
 				o[a]=term1-term2
 				o[b]=self.sides[b]
 				o[c]=self.sides[c]
-				self.other=Triangle(o)
+				self.__other=Triangle(o)
 
 				i=self.__first_none(self.angles)
 				n=self.sides[(i+1)%3]**2 + self.sides[(i+2)%3]**2 - self.sides[i]**2
 				m=2*self.sides[(i+1)%3]*self.sides[(i+2)%3]
 				self.angles[i]=math.acos(float(n)/float(m))
-				self.compute_missing_angle()
+				self.__compute_missing_angle()
 
 		#ASA - law of sines
 		elif Triangle.__num_not_none(self.angles)>=2:
 			if Triangle.__num_not_none(self.angles)==2:
-				self.compute_missing_angle()
+				self.__compute_missing_angle()
 
 			n=Triangle.__first_not_none(self.sides)
 			a=(n+1)%3
@@ -136,19 +158,9 @@ class Triangle:
 		else:
 			raise Exception("Too little info")
 
-	def compute_missing_angle(self):
+	def __compute_missing_angle(self):
 		missing=Triangle.__first_none(self.angles)
 		self.angles[missing]=math.pi-self.angles[(missing+1)%3]-self.angles[(missing+2)%3]
-
-	def get_degrees(self):
-		return [
-			self.get_degree(0),
-			self.get_degree(1),
-			self.get_degree(2)
-		]
-
-	def get_degree(self, i):
-		return math.degrees(self.angles[i]) if self.angles[i] is not None else None
 
 	def __repr__(self):
 		d=self.get_degrees()
