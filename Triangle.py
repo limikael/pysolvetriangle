@@ -7,10 +7,10 @@ import math
 class Triangle:
 
 	def __init__(self, sides=None, angles=None, degrees=None):
-		self.sides=self.fill_array(sides)
+		self.sides=Triangle.__fill_array(sides)
 
 		if degrees is not None:
-			degrees=self.fill_array(degrees)
+			degrees=Triangle.__fill_array(degrees)
 			self.angles=[
 				math.radians(degrees[0]) if degrees[0] is not None else None,
 				math.radians(degrees[1]) if degrees[1] is not None else None,
@@ -18,9 +18,10 @@ class Triangle:
 			]
 
 		else:
-			self.angles=self.fill_array(angles)
+			self.angles=Triangle.__fill_array(angles)
 
-	def fill_array(self,a,fill_len=3):
+	@staticmethod
+	def __fill_array(a,fill_len=3):
 		if a is None:
 			a=[]
 
@@ -29,66 +30,59 @@ class Triangle:
 
 		return a
 
-	def num_defined_sides(self):
+	@staticmethod
+	def __num_not_none(a):
 		n=0
 
-		for i in range(0,3):
-			if self.sides[i] is not None:
+		for i in range(0,len(a)):
+			if a[i] is not None:
 				n+=1
 
 		return n
 
-	def num_defined_angles(self):
-		n=0
+	@staticmethod
+	def __first_none(a):
+		for i in range(0,len(a)):
+			if a[i] is None:
+				return i
 
-		for i in range(0,3):
-			if self.angles[i] is not None:
-				n+=1
+		raise Exception("No missing value")
 
-		return n
+	@staticmethod
+	def __first_not_none(a):
+		for i in range(0,len(a)):
+			if a[i] is not None:
+				return i
+
+		raise Exception("No value defined")
 
 	def solve(self):
 		#SSS - law of cosines
-		if self.num_defined_sides()==3:
+		if Triangle.__num_not_none(self.sides)==3:
 			for i in range(0,2):
 				n=self.sides[(i+1)%3]**2 + self.sides[(i+2)%3]**2 - self.sides[i]**2
 				m=2*self.sides[(i+1)%3]*self.sides[(i+2)%3]
 				self.angles[i]=math.acos(float(n)/float(m))
 
 			self.compute_missing_angle()
-			return
 
 		#ASA - law of sines
-		if self.num_defined_angles()>=2:
-			if self.num_defined_angles()==2:
+		elif Triangle.__num_not_none(self.angles)>=2:
+			if Triangle.__num_not_none(self.angles)==2:
 				self.compute_missing_angle()
 
-			n=self.get_defined_side()
+			n=Triangle.__first_not_none(self.sides)
 			a=(n+1)%3
 			b=(n+2)%3
 			self.sides[a]=self.sides[n]*math.sin(self.angles[a])/math.sin(self.angles[n])
 			self.sides[b]=self.sides[n]*math.sin(self.angles[b])/math.sin(self.angles[n])
-			return
 
-		raise Exception("Too little info")
+		else:
+			raise Exception("Too little info")
 
 	def compute_missing_angle(self):
-		missing=self.get_missing_angle()
+		missing=Triangle.__first_none(self.angles)
 		self.angles[missing]=math.pi-self.angles[(missing+1)%3]-self.angles[(missing+2)%3]
-
-	def get_missing_angle(self):
-		for i in range(0,3):
-			if self.angles[i] is None:
-				return i
-
-		raise Exception("No missing angle")
-
-	def get_defined_side(self):
-		for i in range(0,3):
-			if self.sides[i] is not None:
-				return i
-
-		raise Exception("No defined")
 
 	def get_degrees(self):
 		return [
