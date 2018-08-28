@@ -162,9 +162,20 @@ class Triangle:
 		missing=Triangle.__first_none(self.__angles)
 		self.__angles[missing]=math.pi-self.__angles[(missing+1)%3]-self.__angles[(missing+2)%3]
 
+	@staticmethod
+	def __fmt(num):
+		if num is None:
+			return "None"
+
+		return "%.1f"%num
+
 	def __repr__(self):
 		d=self.get_degrees()
-		return "Triangle[%s - d=[%s,%s,%s]]"%(self.__sides,d[0],d[1],d[2])
+		return "Triangle[[%.1f, %.1f, %.1f] - d=[%.0f, %.0f, %.0f]]"%(
+			self.__sides[0], self.__sides[1], self.__sides[2],
+			d[0], d[1], d[2]
+		)
+
 
 if __name__=="__main__":
 	print Triangle([10,10,10])
