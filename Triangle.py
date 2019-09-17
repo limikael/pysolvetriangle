@@ -178,9 +178,9 @@ class Triangle:
 
 
 if __name__=="__main__":
-	print Triangle([10,10,10])
-	print "other: ",Triangle([10,10,10]).get_other()
-	print Triangle([None,10],degrees=[90,45])
-	print Triangle([10,None,10],degrees=[None,90])
-	print Triangle([1,2],degrees=[20])
-	print "other: ",Triangle([1,2],degrees=[20]).get_other()
+	print(Triangle([10,10,10]))
+	print("other: ",Triangle([10,10,10]).get_other())
+	print(Triangle([None,10],degrees=[90,45]))
+	print(Triangle([10,None,10],degrees=[None,90]))
+	print(Triangle([1,2],degrees=[20]))
+	print("other: ",Triangle([1,2],degrees=[20]).get_other())
